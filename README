@@ -1,0 +1,97 @@
+	What is yescrypt?
+
+yescrypt is a password-based key derivation function (KDF) and password
+hashing scheme.  It builds upon Colin Percival's scrypt and includes
+classic scrypt, a minor extension of scrypt known as YESCRYPT_WORM
+(named that for "write once, read [potentially] many [times]", which is
+how scrypt works), and the full native yescrypt also known as
+YESCRYPT_RW (for "read-write").
+
+
+	Why yescrypt?
+
+Like it or not, password authentication remains relevant (including as
+one of several authentication factors), password hash database leaks
+happen, the leaks are not always detected and fully dealt with right
+away, and even once they are many users' same or similar passwords
+reused elsewhere remain exposed.  To mitigate these risks (as well as
+those present in other scenarios where password-based key derivation or
+password hashing is relevant), computationally expensive (bcrypt,
+PBKDF2, etc.) and more recently also memory-hard (scrypt, Argon2, etc.)
+password hashing schemes have been introduced.  Unfortunately, at high
+target throughput and/or low target latency their memory usage is
+unreasonably low, up to the point where they're not obviously better
+than the much older bcrypt (considering attackers with pre-existing
+hardware).  This is a primary drawback that yescrypt addresses.
+
+Most notable for large-scale deployments is yescrypt's optional
+initialization and reuse of a large lookup table, typically occupying
+at least tens of gigabytes of RAM and essentially forming a
+site-specific ROM.  This limits attackers' use of pre-existing hardware
+such as botnet nodes.  yescrypt's other changes from scrypt further slow
+down GPUs, FPGAs, and ASICs even when its memory usage is low (and even
+when there's no ROM), and provide extra knobs and built-in features.
+
+Technically, yescrypt is the most scalable password hashing scheme so
+far, providing near-optimal security from offline password cracking
+across the whole range from kilobytes to terabytes and beyond.  However,
+the price for this is complexity, and we recognize that complexity is a
+major drawback of any software.  Thus, at this time we focus on
+large-scale deployments.  For smaller deployments, bcrypt with its
+simplicity and existing library support is a reasonable short-term
+choice (although we're making progress towards more efficient FPGA
+attacks on bcrypt under a separate project).  We might introduce a
+cut-down yescrypt-lite later or/and yescrypt might become part of
+standard or popular libraries, making it more suitable for smaller
+deployments as well.
+
+This yescrypt distribution is a work-in-progress.  Its interfaces other
+than crypto_scrypt() are subject to change in future revisions, however
+no incompatible changes to the yescrypt algorithm are expected.
+
+
+	How to test yescrypt for proper operation.
+
+On a Unix-like system, invoke "make check".  This will build and run a
+program called "tests", and check its output against the supplied file
+TESTS-OK.  It will also build a program called "phc-test", and if a file
+called PHC-TEST-OK is present will run that program and check its output
+against that file's contents.  If everything matches, each of these two
+sets of tests prints one word "PASSED", so there will be two such lines
+among "make check" output, one of them being the final line of output.
+
+We do most of our testing on Linux systems with gcc.  The supplied
+Makefile assumes that you use gcc.
+
+
+	ROM in SysV shared memory demo and benchmark.
+
+Also included with this version of yescrypt are "initrom" and "userom"
+demo programs.  They're built by simply typing "make".  Please refer to
+the PERFORMANCE text file for example system configuration and running
+of these programs.
+
+
+	Alternate code versions and make targets.
+
+Three implementations of yescrypt are included: reference, partially
+optimized (without use of SIMD), and fully optimized for x86/x86-64
+(with use of SIMD intrinsics).  By default, one of the two optimized
+implementations is built as appropriate for the given machine.
+
+The reference implementation is unoptimized and is very slow, but it has
+simpler and shorter source code.  Its purpose is to provide a simple
+human- and machine-readable specification that implementations intended
+for actual use should be tested against.  It is deliberately mostly not
+optimized, and it is not meant to be used in production.
+
+There are two additional make targets similar to "make check": they are
+"make check-ref" and "make check-opt".  These build and test the two
+included alternate code versions.
+
+Similarly, there are two make targets to build all of the programs along
+with either of the two alternate implementations.  These are simply
+"make ref" and "make opt".  After having used one of these, the
+"initrom" and "userom" programs will use that build's implementation.
+
+"make clean" may need to be run between making different builds.
