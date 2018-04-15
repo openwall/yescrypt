@@ -28,12 +28,6 @@
  * online backup system.
  */
 
-#undef __AVX2__
-
-#ifdef __AVX2__
-#warning "AVX2 is enabled, which almost always hurts performance with currently recommended (ye)scrypt parameters on Intel & AMD CPUs tested so far"
-#endif
-
 /*
  * AVX and especially XOP speed up Salsa20 a lot, but this mostly matters for
  * classic scrypt and for YESCRYPT_WORM (which use 8 rounds of Salsa20 per
@@ -69,7 +63,7 @@
 #endif
 
 #include <emmintrin.h>
-#if defined(__XOP__) || defined(__AVX2__)
+#ifdef __XOP__
 #include <x86intrin.h>
 #endif
 
@@ -140,9 +134,6 @@
 typedef union {
 	uint32_t w[16];
 	__m128i q[4];
-#ifdef __AVX2__
-	__m256i o[2];
-#endif
 } salsa20_blk_t;
 
 #define DECL_X \
@@ -248,45 +239,6 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 	return INTEGERIFY(X0);
 }
 
-#ifdef __AVX2__
-
-/**
- * Apply the Salsa20/2 core to the block provided in (X0, X1).
- */
-#define SALSA20_2(out) { \
-	__m256i Y0 = X0; \
-	__m256i Y1 = X1; \
-	__m128i A0 = _mm256_castsi256_si128(X0); \
-	__m128i A1 = _mm256_extracti128_si256(X0, 1); \
-	__m128i A2 = _mm256_castsi256_si128(X1); \
-	__m128i A3 = _mm256_extracti128_si256(X1, 1); \
-	SALSA20_2ROUNDS(A0, A1, A2, A3) \
-	(out).o[0] = X0 = \
-	    _mm256_add_epi32(Y0, _mm256_inserti128_si256( \
-	    _mm256_castsi128_si256(A0), A1, 1)); \
-	(out).o[1] = X1 = \
-	    _mm256_add_epi32(Y1, _mm256_inserti128_si256( \
-	    _mm256_castsi128_si256(A2), A3, 1)); \
-}
-
-#undef DECL_X
-#define DECL_X \
-	__m256i X0, X1;
-
-#define DECL_Y \
-	__m256i Y0, Y1;
-
-#undef READ_X
-#define READ_X(in) \
-	X0 = (in).o[0]; \
-	X1 = (in).o[1];
-
-#undef INTEGERIFY
-#define INTEGERIFY(x) \
-	_mm_cvtsi128_si32(_mm256_castsi256_si128(x))
-
-#else
-
 /**
  * Apply the Salsa20/2 core to the block provided in (X0 ... X3).
  */
@@ -298,8 +250,6 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 
 #define DECL_Y \
 	__m128i Y0, Y1, Y2, Y3;
-
-#endif
 
 /*
  * (V)PSRLDQ and (V)PSHUFD have higher throughput than (V)PSRLQ on some CPUs
@@ -374,42 +324,7 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 
 #define DECL_SMASK2REG /* empty */
 
-#if defined(__x86_64__) && defined(__AVX2__)
-/* 64-bit with AVX2 */
-#define PWXFORM_SIMD(X) { \
-	__m256i M = _mm256_and_si256(X, _mm256_set1_epi64x(Smask2)); \
-	uint64_t x = EXTRACT64(_mm256_castsi256_si128(M)); \
-	uint64_t y = EXTRACT64(_mm256_extracti128_si256(M, 1)); \
-	__m256i s0 = _mm256_inserti128_si256( \
-	    _mm256_castsi128_si256( \
-	    *(const __m128i *)(S0 + (uint32_t)x)), \
-	    *(const __m128i *)(S0 + (uint32_t)y), 1); \
-	__m256i s1 = _mm256_inserti128_si256( \
-	    _mm256_castsi128_si256( \
-	    *(const __m128i *)(S1 + (x >> 32))), \
-	    *(const __m128i *)(S1 + (y >> 32)), 1); \
-	X = _mm256_mul_epu32(_mm256_srli_epi64(X, 32), X); \
-	X = _mm256_add_epi64(X, s0); \
-	X = _mm256_xor_si256(X, s1); \
-}
-#elif defined(__AVX2__)
-/* 32-bit with AVX2 */
-#define PWXFORM_SIMD(X) { \
-	__m128i x = _mm_and_si128(_mm256_castsi256_si128( \
-	    _mm256_permute4x64_epi64(X, 0xe8)), _mm_set1_epi64x(Smask2)); \
-	__m256i s0 = _mm256_inserti128_si256( \
-	    _mm256_castsi128_si256( \
-	    *(const __m128i *)(S0 + (uint32_t)_mm_cvtsi128_si32(x))), \
-	    *(const __m128i *)(S0 + (uint32_t)_mm_extract_epi32(x, 2)), 1); \
-	__m256i s1 = _mm256_inserti128_si256( \
-	    _mm256_castsi128_si256( \
-	    *(const __m128i *)(S1 + (uint32_t)_mm_extract_epi32(x, 1))), \
-	    *(const __m128i *)(S1 + (uint32_t)_mm_extract_epi32(x, 3)), 1); \
-	X = _mm256_mul_epu32(_mm256_srli_epi64(X, 32), X); \
-	X = _mm256_add_epi64(X, s0); \
-	X = _mm256_xor_si256(X, s1); \
-}
-#elif defined(__x86_64__) && defined(__AVX__)
+#if defined(__x86_64__) && defined(__AVX__)
 /* 64-bit with AVX */
 /* Force use of 64-bit AND instead of two 32-bit ANDs */
 #undef DECL_SMASK2REG
@@ -479,6 +394,12 @@ static volatile uint64_t Smask2var = Smask2;
 }
 #endif
 
+#define PWXFORM_ROUND \
+	PWXFORM_SIMD(X0) \
+	PWXFORM_SIMD(X1) \
+	PWXFORM_SIMD(X2) \
+	PWXFORM_SIMD(X3)
+
 /*
  * This offset helps address the 256-byte write block via the single-byte
  * displacements encodable in x86(-64) instructions.  It is needed because the
@@ -489,29 +410,12 @@ static volatile uint64_t Smask2var = Smask2;
  */
 #define PWXFORM_WRITE_OFFSET 0x78
 
-#ifdef __AVX2__
-#define PWXFORM_ROUND \
-	PWXFORM_SIMD(X0) \
-	PWXFORM_SIMD(X1)
-
-#define PWXFORM_WRITE \
-	*(__m256i *)(Sw - PWXFORM_WRITE_OFFSET) = X0; \
-	*(__m256i *)(Sw - PWXFORM_WRITE_OFFSET + 32) = X1; \
-	Sw += 64;
-#else
-#define PWXFORM_ROUND \
-	PWXFORM_SIMD(X0) \
-	PWXFORM_SIMD(X1) \
-	PWXFORM_SIMD(X2) \
-	PWXFORM_SIMD(X3)
-
 #define PWXFORM_WRITE \
 	*(__m128i *)(Sw - PWXFORM_WRITE_OFFSET) = X0; \
 	*(__m128i *)(Sw - PWXFORM_WRITE_OFFSET + 16) = X1; \
 	*(__m128i *)(Sw - PWXFORM_WRITE_OFFSET + 32) = X2; \
 	*(__m128i *)(Sw - PWXFORM_WRITE_OFFSET + 48) = X3; \
 	Sw += 64;
-#endif
 
 #if defined(__x86_64__) && defined(__GNUC__) && !defined(__ICC)
 #define FORCE_REGALLOC_3 __asm__("" : : "b" (Sw));
@@ -537,22 +441,11 @@ static volatile uint64_t Smask2var = Smask2;
 	} \
 }
 
-#ifdef __AVX2__
-#undef XOR4
-#define XOR4(in) \
-	X0 = _mm256_xor_si256(X0, (in).o[0]); \
-	X1 = _mm256_xor_si256(X1, (in).o[1]);
-
-#define OUT(out) \
-	(out).o[0] = X0; \
-	(out).o[1] = X1;
-#else
 #define OUT(out) \
 	(out).q[0] = X0; \
 	(out).q[1] = X1; \
 	(out).q[2] = X2; \
 	(out).q[3] = X3;
-#endif
 
 typedef struct {
 	uint8_t *S0, *S1, *S2;
@@ -596,13 +489,6 @@ static void blockmix(const salsa20_blk_t *restrict Bin,
 
 	SALSA20_2(Bout[i])
 }
-
-#ifdef __AVX2__
-#undef XOR4_2
-#define XOR4_2(in1, in2) \
-	X0 = _mm256_xor_si256((in1).o[0], (in2).o[0]); \
-	X1 = _mm256_xor_si256((in1).o[1], (in2).o[1]);
-#endif
 
 static uint32_t blockmix_xor(const salsa20_blk_t *restrict Bin1,
     const salsa20_blk_t *restrict Bin2, salsa20_blk_t *restrict Bout,
@@ -662,16 +548,6 @@ static uint32_t blockmix_xor(const salsa20_blk_t *restrict Bin1,
 }
 
 #undef XOR4
-
-#ifdef __AVX2__
-#define XOR4(in, out) \
-	(out).o[0] = Y0 = _mm256_xor_si256((in).o[0], (out).o[0]); \
-	(out).o[1] = Y1 = _mm256_xor_si256((in).o[1], (out).o[1]);
-
-#define XOR4_Y \
-	X0 = _mm256_xor_si256(X0, Y0); \
-	X1 = _mm256_xor_si256(X1, Y1);
-#else
 #define XOR4(in, out) \
 	(out).q[0] = Y0 = _mm_xor_si128((in).q[0], (out).q[0]); \
 	(out).q[1] = Y1 = _mm_xor_si128((in).q[1], (out).q[1]); \
@@ -683,7 +559,6 @@ static uint32_t blockmix_xor(const salsa20_blk_t *restrict Bin1,
 	X1 = _mm_xor_si128(X1, Y1); \
 	X2 = _mm_xor_si128(X2, Y2); \
 	X3 = _mm_xor_si128(X3, Y3);
-#endif
 
 static uint32_t blockmix_xor_save(const salsa20_blk_t *restrict Bin1,
     salsa20_blk_t *restrict Bin2, salsa20_blk_t *restrict Bout,
