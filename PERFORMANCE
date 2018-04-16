@@ -166,10 +166,6 @@ Benchmarking 56 threads ...
 1136 c/s real, 20 c/s virtual (7112 hashes in 6.26 seconds)
 min 27.844 ms, avg 48.837 ms, max 50.792 ms
 
-When not using a ROM, we're able to compute over 21k, over 10k, over 2k,
-or over 1k hashes per second with per-thread RAM sizes of 2 MiB, 4 MiB,
-16 MiB, or 32 MiB, respectively.
-
 Slightly higher speeds are possible for 4 MiB and higher with larger
 yescrypt block size (r=32 instead of r=16, thus 4 KiB blocks instead of
 2 KiB blocks benchmarked above).  Here they are for 4 MiB, 16 MiB, and
@@ -183,6 +179,10 @@ min 13.923 ms, avg 22.638 ms, max 24.042 ms
 
 1221 c/s real, 21 c/s virtual (7112 hashes in 5.82 seconds)
 min 28.909 ms, avg 45.658 ms, max 47.265 ms
+
+Thus, when not using a ROM we're able to compute over 21k, over 10k,
+around 2400, or around 1200 hashes per second with per-thread RAM sizes
+of 2 MiB, 4 MiB, 16 MiB, or 32 MiB, respectively.
 
 The same might not hold on another machine.
 
