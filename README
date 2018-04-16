@@ -47,13 +47,6 @@ yescrypt might become part of standard or popular libraries, making it
 more suitable for smaller deployments as well.
 
 
-	Development status.
-
-This yescrypt distribution is a work-in-progress.  Its interfaces other
-than crypto_scrypt() are subject to change in future revisions, however
-no incompatible changes to the yescrypt algorithm are expected.
-
-
 	Performance.
 
 Please refer to PERFORMANCE for example setup and benchmarks relevant to
@@ -150,3 +143,10 @@ with either of the two alternate implementations.  These are simply
 "initrom" and "userom" programs will use that build's implementation.
 
 "make clean" may need to be run between making different builds.
+
+
+	Development status.
+
+This yescrypt distribution is a work-in-progress.  Its interfaces other
+than crypto_scrypt() are subject to change in future revisions, however
+no incompatible changes to the yescrypt algorithm are expected.
