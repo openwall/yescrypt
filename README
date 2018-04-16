@@ -1,11 +1,9 @@
 	What is yescrypt?
 
 yescrypt is a password-based key derivation function (KDF) and password
-hashing scheme.  It builds upon Colin Percival's scrypt and includes
-classic scrypt, a minor extension of scrypt known as YESCRYPT_WORM
-(named that for "write once, read [potentially] many [times]", which is
-how scrypt works), and the full native yescrypt also known as
-YESCRYPT_RW (for "read-write").
+hashing scheme.  It builds upon Colin Percival's scrypt.  This
+implementation is able to compute native yescrypt hashes as well as
+classic scrypt.
 
 
 	Why yescrypt?
@@ -28,26 +26,83 @@ Most notable for large-scale deployments is yescrypt's optional
 initialization and reuse of a large lookup table, typically occupying
 at least tens of gigabytes of RAM and essentially forming a
 site-specific ROM.  This limits attackers' use of pre-existing hardware
-such as botnet nodes.  yescrypt's other changes from scrypt further slow
-down GPUs, FPGAs, and ASICs even when its memory usage is low (and even
-when there's no ROM), and provide extra knobs and built-in features.
+such as botnet nodes.
+
+yescrypt's other changes from scrypt additionally slow down GPUs and to
+a lesser extent FPGAs and ASICs even when its memory usage is low and
+even when there's no ROM, and provide extra knobs and built-in features.
 
 Technically, yescrypt is the most scalable password hashing scheme so
 far, providing near-optimal security from offline password cracking
 across the whole range from kilobytes to terabytes and beyond.  However,
 the price for this is complexity, and we recognize that complexity is a
 major drawback of any software.  Thus, at this time we focus on
-large-scale deployments.  For smaller deployments, bcrypt with its
-simplicity and existing library support is a reasonable short-term
-choice (although we're making progress towards more efficient FPGA
-attacks on bcrypt under a separate project).  We might introduce a
-cut-down yescrypt-lite later or/and yescrypt might become part of
-standard or popular libraries, making it more suitable for smaller
-deployments as well.
+large-scale deployments, where the added complexity is relatively small
+compared to the total complexity of the authentication service setup.
+For smaller deployments, bcrypt with its simplicity and existing library
+support is a reasonable short-term choice (although we're making
+progress towards more efficient FPGA attacks on bcrypt under a separate
+project).  We might introduce a cut-down yescrypt-lite later or/and
+yescrypt might become part of standard or popular libraries, making it
+more suitable for smaller deployments as well.
+
+
+	Development status.
 
 This yescrypt distribution is a work-in-progress.  Its interfaces other
 than crypto_scrypt() are subject to change in future revisions, however
 no incompatible changes to the yescrypt algorithm are expected.
+
+
+	Performance.
+
+Please refer to PERFORMANCE for example setup and benchmarks relevant to
+the mass user authentication use case.
+
+The test system is a server (kindly provided by Packet.net) with dual
+Xeon Gold 5120 CPUs (2.2 GHz, turbo to up to 3.2 GHz) and 384 GiB RAM
+(12x DDR4-2400 ECC Reg).  These CPUs have 14 cores and 6 memory channels
+each, for a total of 28 physical cores, 56 logical CPUs (HT is enabled),
+and 12 memory channels.
+
+Some highlights: initialization of a 368 GiB ROM takes 22 seconds (to
+be done on server bootup), and while using the ROM we're able to compute
+over 21k, over 10k, or around 1200 hashes per second with per-hash RAM
+usage of 1.4375 MiB, 2.875 MiB, or 23 MiB, respectively.
+
+When not using a ROM, we're able to compute over 21k, over 10k, or
+around 1200 hashes per second with per-hash RAM usage of 2 MiB, 4 MiB,
+or 32 MiB, respectively.
+
+
+	Comparison to scrypt and Argon2.
+
+yescrypt's advantages:
+
+ + Greater resistance to offline attacks
+ + Extra optional built-in features
+ + Cryptographic security provided by NIST-approved primitives
+ + SHA-256, HMAC, PBKDF2, and scrypt are usable from the same codebase
+
+yescrypt's drawbacks:
+
+ - Complex
+ - Cache-timing unsafe
+ - Not the PHC winner
+ - Not available in third-party libraries yet
+
+Please refer to COMPARISON for a lot more detail and other observations.
+
+
+	A note on cryptocoins.
+
+Although multiple CPU mining focused cryptocoins already use yescrypt
+0.5'ish as their proof-of-work (PoW) scheme, we currently do not
+recommend yescrypt 1.0+ for use by cryptocoins.  If you feel like
+starting a new coin or forking one, for now please use the exact same
+older revision of yescrypt that other coins already use (this is also
+easier for you to do, through forking another coin's existing codebase).
+We might introduce a special mode optimized for the PoW use case later.
 
 
 	How to test yescrypt for proper operation.
@@ -55,10 +110,11 @@ no incompatible changes to the yescrypt algorithm are expected.
 On a Unix-like system, invoke "make check".  This will build and run a
 program called "tests", and check its output against the supplied file
 TESTS-OK.  It will also build a program called "phc-test", and if a file
-called PHC-TEST-OK is present will run that program and check its output
-against that file's contents.  If everything matches, each of these two
-sets of tests prints one word "PASSED", so there will be two such lines
-among "make check" output, one of them being the final line of output.
+called PHC-TEST-OK-SHA256 is present will run that program and check its
+output against that file's contents.  If everything matches, each of
+these two sets of tests prints one word "PASSED", so there will be two
+such lines among "make check" output, one of them being the final line
+of output.
 
 We do most of our testing on Linux systems with gcc.  The supplied
 Makefile assumes that you use gcc.
@@ -68,8 +124,7 @@ Makefile assumes that you use gcc.
 
 Also included with this version of yescrypt are "initrom" and "userom"
 demo programs.  They're built by simply typing "make".  Please refer to
-the PERFORMANCE text file for example system configuration and running
-of these programs.
+PERFORMANCE for their usage.
 
 
 	Alternate code versions and make targets.

@@ -112,7 +112,7 @@ Benchmarking 56 threads ...
 1201 c/s real, 21 c/s virtual (7112 hashes in 5.92 seconds)
 min 32.444 ms, avg 46.362 ms, max 48.067 ms
 
-While using the ROM, we're able to compute over 20k, over 10k, or around
+While using the ROM, we're able to compute over 21k, over 10k, or around
 1200 password hashes per second with per-thread RAM sizes of 1.4375 MiB,
 2.875 MiB, or 23 MiB, respectively.
 
@@ -166,7 +166,7 @@ Benchmarking 56 threads ...
 1136 c/s real, 20 c/s virtual (7112 hashes in 6.26 seconds)
 min 27.844 ms, avg 48.837 ms, max 50.792 ms
 
-When not using a ROM, we're able to compute over 20k, over 10k, over 2k,
+When not using a ROM, we're able to compute over 21k, over 10k, over 2k,
 or over 1k hashes per second with per-thread RAM sizes of 2 MiB, 4 MiB,
 16 MiB, or 32 MiB, respectively.
 
