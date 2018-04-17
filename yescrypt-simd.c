@@ -324,7 +324,7 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 
 #define DECL_SMASK2REG /* empty */
 
-#if defined(__x86_64__) && defined(__AVX__)
+#if defined(__x86_64__) && (defined(__AVX__) || !defined(__GNUC__))
 /* 64-bit with AVX */
 /* Force use of 64-bit AND instead of two 32-bit ANDs */
 #undef DECL_SMASK2REG
