@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define YESCRYPT_FLAGS YESCRYPT_RW_DEFAULTS
+#define YESCRYPT_FLAGS YESCRYPT_DEFAULTS
 #if 1
 #define YESCRYPT_P 11
 #define YESCRYPT_PROM 8
@@ -192,25 +192,25 @@ int main(int argc, const char * const *argv)
 	print_yescrypt("", "", YESCRYPT_WORM, 4, 1, 1, 3, 0, 32);
 	print_yescrypt("", "", YESCRYPT_WORM, 4, 1, 1, 3, 0, 31);
 	print_yescrypt("", "", YESCRYPT_WORM, 4, 1, 1, 3, 0, 1);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 0, 0, 64);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 0, 0, 4);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 1, 0, 64);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 1, 0, 33);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 1, 0, 32);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 1, 0, 31);
-	print_yescrypt("", "", YESCRYPT_RW_DEFAULTS, 4, 1, 1, 1, 0, 1);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 0, 0, 64);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 0, 0, 4);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 1, 0, 64);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 1, 0, 33);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 1, 0, 32);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 1, 0, 31);
+	print_yescrypt("", "", YESCRYPT_DEFAULTS, 4, 1, 1, 1, 0, 1);
 	for (i = 0; i <= 6; i++)
-		print_yescrypt("p", "s", YESCRYPT_RW_DEFAULTS, 16, 8, 1, i + 10, i, 40);
+		print_yescrypt("p", "s", YESCRYPT_DEFAULTS, 16, 8, 1, i + 10, i, 40);
 	for (i = 0; i <= 6; i++)
 		print_yescrypt("p", "s", YESCRYPT_WORM, 16, 8, 1, i + 10, i, 40);
 	for (i = 0; i <= 6; i++)
-		print_yescrypt("p", "s", YESCRYPT_RW_DEFAULTS, 16, 8, 1, 0, i, 40);
+		print_yescrypt("p", "s", YESCRYPT_DEFAULTS, 16, 8, 1, 0, i, 40);
 	for (i = 0; i <= 6; i++)
 		print_yescrypt("p", "s", YESCRYPT_WORM, 16, 8, 1, 0, i, 40);
 	for (i = 0; i <= 2; i++)
-		print_yescrypt("p", "s", YESCRYPT_RW_DEFAULTS, 16, 8, 1, 0, i, 32);
+		print_yescrypt("p", "s", YESCRYPT_DEFAULTS, 16, 8, 1, 0, i, 32);
 	for (i = 0; i <= 2; i++)
-		print_yescrypt("p", "s", YESCRYPT_RW_DEFAULTS, 16, 8, 1, 0, i, 8);
+		print_yescrypt("p", "s", YESCRYPT_DEFAULTS, 16, 8, 1, 0, i, 8);
 #endif
 
 #ifdef TEST_YESCRYPT_ENCODING
@@ -224,7 +224,7 @@ int main(int argc, const char * const *argv)
 			uint32_t N_log2 = (i < 14) ? (16 - i) : 2;
 			uint32_t r = (i < 8) ? (8 - i) : (1 + (i & 1));
 			uint32_t p = (i & 1) ? 1 : YESCRYPT_P;
-			yescrypt_flags_t flags = YESCRYPT_RW_DEFAULTS;
+			yescrypt_flags_t flags = YESCRYPT_DEFAULTS;
 			if ((int)p - (i / 2) > 1)
 				p -= i / 2;
 			if (i & 2) {
@@ -326,7 +326,7 @@ int main(int argc, const char * const *argv)
 
 		printf("Initializing ROM ...");
 		fflush(stdout);
-		yescrypt_params_t rom_params = { YESCRYPT_RW_DEFAULTS,
+		yescrypt_params_t rom_params = { YESCRYPT_DEFAULTS,
 		    0, r, YESCRYPT_PROM, 0, 0, (uint64_t)1 << NROM_log2 };
 		if (yescrypt_init_shared(&shared,
 		    (uint8_t *)"local param", 12, &rom_params)) {

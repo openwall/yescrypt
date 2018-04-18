@@ -18,7 +18,7 @@
  * SUCH DAMAGE.
  */
 
-#define YESCRYPT_FLAGS YESCRYPT_RW_DEFAULTS
+#define YESCRYPT_FLAGS YESCRYPT_DEFAULTS
 
 #define ROM_SHM_KEY			0x7965730a
 #define ROM_LOCAL_PARAM			"change this before use"
@@ -167,7 +167,7 @@ int main(int argc, const char * const *argv)
 	printf("Initializing ROM ...");
 	fflush(stdout);
 	yescrypt_params_t rom_params = {
-	    .flags = YESCRYPT_RW_DEFAULTS | YESCRYPT_SHARED_PREALLOCATED,
+	    .flags = YESCRYPT_DEFAULTS | YESCRYPT_SHARED_PREALLOCATED,
 	    .NROM = (uint64_t)1 << NROM_log2,
 	    .r = r,
 	    .p = rom_filename ? YESCRYPT_PROM_FILE : YESCRYPT_PROM_SHM };
