@@ -500,7 +500,6 @@ static void smix2(uint64_t *B, size_t r, uint64_t N, uint64_t Nloop,
 		salsa20_simd_shuffle(tmp, dst);
 	}
 
-	i = Nloop / 2; /* since 2x unroll */
 	if (VROM) {
 /*
  * Normally, VROM implies YESCRYPT_RW, but we check for these separately
@@ -517,7 +516,7 @@ static void smix2(uint64_t *B, size_t r, uint64_t N, uint64_t Nloop,
 			j = integerify(Y, r) & (NROM - 1);
 			blkxor(Y, &VROM[j * s], s);
 			blockmix_pwxform(Y, X, ctx, r);
-		} while (--i);
+		} while (Nloop -= 2);
 	} else if (ctx) {
 		yescrypt_flags_t rw = flags & YESCRYPT_RW;
 		do {
@@ -531,7 +530,7 @@ static void smix2(uint64_t *B, size_t r, uint64_t N, uint64_t Nloop,
 			if (rw)
 				blkcpy(&V[j * s], Y, s);
 			blockmix_pwxform(Y, X, ctx, r);
-		} while (--i);
+		} while (Nloop -= 2);
 	} else {
 		uint64_t *Z = &XY[2 * s];
 		do {
@@ -541,7 +540,7 @@ static void smix2(uint64_t *B, size_t r, uint64_t N, uint64_t Nloop,
 			j = integerify(Y, r) & (N - 1);
 			blkxor(Y, &V[j * s], s);
 			blockmix_salsa8(Y, X, Z, r);
-		} while (--i);
+		} while (Nloop -= 2);
 	}
 
 	for (i = 0; i < 2 * r; i++) {
