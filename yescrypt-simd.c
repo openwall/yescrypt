@@ -834,8 +834,8 @@ static uint64_t p2floor(uint64_t x)
 /**
  * smix(B, r, N, p, t, flags, V, NROM, VROM, XY, S, passwd):
  * Compute B = SMix_r(B, N).  The input B must be 128rp bytes in length; the
- * temporary storage V must be 128rN bytes in length; the temporary storage XY
- * must be 256r or 256rp bytes in length (the larger size is required with
+ * temporary storage V must be 128rN bytes in length; the temporary storage
+ * XY must be 256r or 256rp bytes in length (the larger size is required with
  * OpenMP-enabled builds).  The value N must be a power of 2 greater than 1.
  * The array V must be aligned to a multiple of 64 bytes, and arrays B and
  * XY to a multiple of at least 16 bytes (aligning them to 64 bytes as well
@@ -939,7 +939,7 @@ static void smix(uint8_t *B, size_t r, uint32_t N, uint32_t p, uint32_t t,
 
 /**
  * yescrypt_kdf_body(shared, local, passwd, passwdlen, salt, saltlen,
- *     flags, N, r, p, t, buf, buflen):
+ *     flags, N, r, p, t, NROM, buf, buflen):
  * Compute scrypt(passwd[0 .. passwdlen - 1], salt[0 .. saltlen - 1], N, r,
  * p, buflen), or a revision of scrypt as requested by flags and shared, and
  * write the result into buf.
@@ -1015,8 +1015,9 @@ static int yescrypt_kdf_body(const yescrypt_shared_t *shared,
 			goto out_EINVAL;
 	}
 #ifdef _OPENMP
-	else if (N > SIZE_MAX / 128 / (r * p))
+	else if (N > SIZE_MAX / 128 / (r * p)) {
 		goto out_EINVAL;
+	}
 #endif
 
 	VROM = NULL;
