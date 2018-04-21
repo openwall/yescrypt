@@ -47,17 +47,17 @@
 #define YESCRYPT_INTERNAL
 #include "yescrypt.h"
 
-static void blkcpy(uint32_t *dest, const uint32_t *src, size_t count)
+static void blkcpy(uint32_t *dst, const uint32_t *src, size_t count)
 {
 	do {
-		*dest++ = *src++;
+		*dst++ = *src++;
 	} while (--count);
 }
 
-static void blkxor(uint32_t *dest, const uint32_t *src, size_t count)
+static void blkxor(uint32_t *dst, const uint32_t *src, size_t count)
 {
 	do {
-		*dest++ ^= *src++;
+		*dst++ ^= *src++;
 	} while (--count);
 }
 

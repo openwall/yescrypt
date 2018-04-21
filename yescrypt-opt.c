@@ -48,19 +48,19 @@
 
 #include "yescrypt-platform.c"
 
-static inline void blkcpy(uint64_t *dest, const uint64_t *src, size_t count)
+static inline void blkcpy(uint64_t *dst, const uint64_t *src, size_t count)
 {
 	do {
-		*dest++ = *src++; *dest++ = *src++;
-		*dest++ = *src++; *dest++ = *src++;
+		*dst++ = *src++; *dst++ = *src++;
+		*dst++ = *src++; *dst++ = *src++;
 	} while (count -= 4);
 }
 
-static inline void blkxor(uint64_t *dest, const uint64_t *src, size_t count)
+static inline void blkxor(uint64_t *dst, const uint64_t *src, size_t count)
 {
 	do {
-		*dest++ ^= *src++; *dest++ ^= *src++;
-		*dest++ ^= *src++; *dest++ ^= *src++;
+		*dst++ ^= *src++; *dst++ ^= *src++;
+		*dst++ ^= *src++; *dst++ ^= *src++;
 	} while (count -= 4);
 }
 
