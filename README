@@ -47,6 +47,13 @@ yescrypt might become part of standard or popular libraries, making it
 more suitable for smaller deployments as well.
 
 
+	Parameter selection.
+
+Please refer to PARAMETERS for guidelines on parameter selection and the
+currently recommended parameter sets by use case (password hashing with
+or without a ROM, and KDF).
+
+
 	Performance.
 
 Please refer to PERFORMANCE for example setup and benchmarks relevant to
