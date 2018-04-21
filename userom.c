@@ -273,7 +273,8 @@ int main(int argc, const char * const *argv)
 #ifdef _OPENMP
 		unsigned int nt = omp_get_max_threads();
 
-		printf("Benchmarking %u threads ...\n", nt);
+		printf("Benchmarking %u thread%s ...\n",
+		    nt, nt == 1 ? "" : "s");
 
 		typedef struct {
 			yescrypt_local_t local;
