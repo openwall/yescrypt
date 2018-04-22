@@ -1,3 +1,21 @@
+	Changes made between 1.0.0 (2018/03/09) and 1.0.1 (2018/04/22).
+
+The included documentation has been improved, most notably adding new
+text files PARAMETERS (guidelines on parameter selection, and currently
+recommended parameter sets by use case) and COMPARISON (comparison to
+scrypt and Argon2).
+
+Code cleanups have been made, including removal of AVX2 support, which
+was deliberately temporarily preserved for the 1.0.0 release, but which
+almost always hurt performance with currently recommended low-level
+yescrypt parameters on Intel & AMD CPUs tested so far.  (The low-level
+parameters are chosen with consideration for relative performance of
+defensive vs. offensive implementations on different hardware, and not
+only for seemingly best performance on CPUs.  It is possible to change
+them such that AVX2 would be worthwhile, and this might happen in the
+future, but currently this wouldn't be obviously beneficial overall.)
+
+
 	Changes made between 0.8.1 (2015/10/25) and 1.0.0 (2018/03/09).
 
 Hash string encoding has been finalized under the "$y$" prefix for both
