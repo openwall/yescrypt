@@ -35,7 +35,7 @@
  * per block except during pwxform S-box initialization).
  */
 #ifdef __XOP__
-#warning "Note: XOP is enabled, which is great for classic scrypt and YESCRYPT_WORM, but is usually slightly slower than plain SSE2 for YESCRYPT_RW"
+#warning "Note: XOP is enabled, which is great for classic scrypt and YESCRYPT_WORM"
 #elif defined(__AVX__)
 #warning "Note: AVX is enabled, which is great for classic scrypt and YESCRYPT_WORM, but is usually slightly slower than plain SSE2 for YESCRYPT_RW"
 #else
