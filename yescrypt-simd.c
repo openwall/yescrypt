@@ -456,7 +456,7 @@ typedef struct {
 
 /**
  * blockmix_pwxform(Bin, Bout, r, S):
- * Compute Bout = BlockMix_pwxform{salsa20/8, r, S}(Bin).  The input Bin must
+ * Compute Bout = BlockMix_pwxform{salsa20/2, r, S}(Bin).  The input Bin must
  * be 128r bytes in length; the output Bout must also be the same size.
  */
 static void blockmix(const salsa20_blk_t *restrict Bin,
