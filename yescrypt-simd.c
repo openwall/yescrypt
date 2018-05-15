@@ -490,8 +490,8 @@ static void blockmix(const salsa20_blk_t *restrict Bin,
 	SALSA20_2(Bout[i])
 }
 
-static uint32_t blockmix_xor(const salsa20_blk_t *restrict Bin1,
-    const salsa20_blk_t *restrict Bin2, salsa20_blk_t *restrict Bout,
+static uint32_t blockmix_xor(const salsa20_blk_t *Bin1,
+    const salsa20_blk_t *restrict Bin2, salsa20_blk_t *Bout,
     size_t r, int Bin2_in_ROM, pwxform_ctx_t *restrict ctx)
 {
 	uint8_t *S0 = ctx->S0, *S1 = ctx->S1, *S2 = ctx->S2;
@@ -560,8 +560,8 @@ static uint32_t blockmix_xor(const salsa20_blk_t *restrict Bin1,
 	X2 = _mm_xor_si128(X2, Y2); \
 	X3 = _mm_xor_si128(X3, Y3);
 
-static uint32_t blockmix_xor_save(const salsa20_blk_t *restrict Bin1,
-    salsa20_blk_t *restrict Bin2, salsa20_blk_t *restrict Bout,
+static uint32_t blockmix_xor_save(salsa20_blk_t *restrict Bin1out,
+    salsa20_blk_t *restrict Bin2,
     size_t r, pwxform_ctx_t *restrict ctx)
 {
 	uint8_t *S0 = ctx->S0, *S1 = ctx->S1, *S2 = ctx->S2;
@@ -578,26 +578,26 @@ static uint32_t blockmix_xor_save(const salsa20_blk_t *restrict Bin1,
 		PREFETCH(&Bin2[i], _MM_HINT_T0)
 	}
 
-	XOR4_2(Bin1[r], Bin2[r])
+	XOR4_2(Bin1out[r], Bin2[r])
 
 	DECL_SMASK2REG
 
 	i = 0;
 	r--;
 	do {
-		XOR4(Bin1[i], Bin2[i])
+		XOR4(Bin1out[i], Bin2[i])
 		XOR4_Y
 		PWXFORM
-		OUT(Bout[i])
+		OUT(Bin1out[i])
 
-		XOR4(Bin1[i + 1], Bin2[i + 1])
+		XOR4(Bin1out[i + 1], Bin2[i + 1])
 		XOR4_Y
 		PWXFORM
 
 		if (unlikely(i >= r))
 			break;
 
-		OUT(Bout[i + 1])
+		OUT(Bin1out[i + 1])
 
 		i += 2;
 	} while (1);
@@ -606,7 +606,7 @@ static uint32_t blockmix_xor_save(const salsa20_blk_t *restrict Bin1,
 	ctx->S0 = S0; ctx->S1 = S1; ctx->S2 = S2;
 	ctx->w = w;
 
-	SALSA20_2(Bout[i])
+	SALSA20_2(Bin1out[i])
 
 	return INTEGERIFY(X0);
 }
@@ -754,7 +754,7 @@ static void smix2(uint8_t *B, size_t r, uint32_t N, uint64_t Nloop,
     const salsa20_blk_t *VROM, salsa20_blk_t *XY, pwxform_ctx_t *ctx)
 {
 	size_t s = 2 * r;
-	salsa20_blk_t *X = XY, *Y = &XY[s];
+	salsa20_blk_t *X = XY;
 	uint32_t i, j;
 	size_t k;
 
@@ -778,32 +778,33 @@ static void smix2(uint8_t *B, size_t r, uint32_t N, uint64_t Nloop,
 		do {
 			salsa20_blk_t *V_j = &V[j * s];
 			const salsa20_blk_t *VROM_j;
-			j = blockmix_xor_save(X, V_j, Y, r, ctx) & (NROM - 1);
+			j = blockmix_xor_save(X, V_j, r, ctx) & (NROM - 1);
 			VROM_j = &VROM[j * s];
-			j = blockmix_xor(Y, VROM_j, X, r, 1, ctx) & (N - 1);
+			j = blockmix_xor(X, VROM_j, X, r, 1, ctx) & (N - 1);
 		} while (Nloop -= 2);
 	} else if (VROM) {
 		do {
 			const salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_xor(X, V_j, Y, r, 0, ctx) & (NROM - 1);
+			j = blockmix_xor(X, V_j, X, r, 0, ctx) & (NROM - 1);
 			V_j = &VROM[j * s];
-			j = blockmix_xor(Y, V_j, X, r, 1, ctx) & (N - 1);
+			j = blockmix_xor(X, V_j, X, r, 1, ctx) & (N - 1);
 		} while (Nloop -= 2);
 	} else if (flags & YESCRYPT_RW) {
 		do {
 			salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_xor_save(X, V_j, Y, r, ctx) & (N - 1);
+			j = blockmix_xor_save(X, V_j, r, ctx) & (N - 1);
 			V_j = &V[j * s];
-			j = blockmix_xor_save(Y, V_j, X, r, ctx) & (N - 1);
+			j = blockmix_xor_save(X, V_j, r, ctx) & (N - 1);
 		} while (Nloop -= 2);
 	} else if (ctx) {
 		do {
 			const salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_xor(X, V_j, Y, r, 0, ctx) & (N - 1);
+			j = blockmix_xor(X, V_j, X, r, 0, ctx) & (N - 1);
 			V_j = &V[j * s];
-			j = blockmix_xor(Y, V_j, X, r, 0, ctx) & (N - 1);
+			j = blockmix_xor(X, V_j, X, r, 0, ctx) & (N - 1);
 		} while (Nloop -= 2);
 	} else {
+		salsa20_blk_t *Y = &XY[s];
 		do {
 			const salsa20_blk_t *V_j = &V[j * s];
 			j = blockmix_salsa8_xor(X, V_j, Y, r) & (N - 1);
