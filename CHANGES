@@ -1,3 +1,18 @@
+	Changes made between 1.0.1 (2018/04/22) and 1.0.2 (2018/06/06).
+
+In the SIMD code, we now reuse the same buffer for BlockMix_pwxform's
+input and output in SMix2, which might slightly improve cache hit rate
+and thus performance.
+
+A compiler memory barrier has been added between sub-blocks to ensure
+that none of the writes into what was S2 during processing of the
+previous sub-block are postponed until after a read from S0 or S1 in the
+inline asm code for the current sub-block.  This potential problem was
+never observed so far due to other constraints that we have, but
+strictly speaking those constraints were insufficient to guarantee it
+can't occur.
+
+
 	Changes made between 1.0.0 (2018/03/09) and 1.0.1 (2018/04/22).
 
 The included documentation has been improved, most notably adding new
