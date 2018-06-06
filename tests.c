@@ -55,8 +55,8 @@ static void print_PBKDF2_SHA256_raw(const char *passwd, size_t passwdlen,
 	assert(dkLen <= sizeof(dk));
 
 	/* XXX This prints the strings truncated at first NUL */
-	printf("PBKDF2_SHA256(\"%s\", \"%s\", %llu, %lu) =",
-	    passwd, salt, (unsigned long long)c, dkLen);
+	printf("PBKDF2_SHA256(\"%s\", \"%s\", %llu, %llu) =",
+	    passwd, salt, (unsigned long long)c, (unsigned long long)dkLen);
 
 	PBKDF2_SHA256((const uint8_t *) passwd, passwdlen,
 	    (const uint8_t *) salt, saltlen, c, dk, dkLen);
