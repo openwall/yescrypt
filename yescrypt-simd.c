@@ -323,6 +323,7 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 #define Smask2 (((uint64_t)Smask << 32) | Smask)
 
 #define DECL_SMASK2REG /* empty */
+#define MAYBE_MEMORY_BARRIER /* empty */
 
 #if defined(__x86_64__) && (defined(__AVX__) || !defined(__GNUC__))
 /* 64-bit with AVX */
@@ -357,6 +358,12 @@ static volatile uint64_t Smask2var = Smask2;
  * renaming.  It may actually be fastest on CPUs with AVX(2) as well - e.g.,
  * it runs great on Haswell. */
 #warning "Note: using x86-64 inline assembly for YESCRYPT_RW.  That's great."
+/* We need a compiler memory barrier between sub-blocks to ensure that none of
+ * the writes into what was S2 during processing of the previous sub-block are
+ * postponed until after a read from S0 or S1 in the inline asm code below. */
+#undef MAYBE_MEMORY_BARRIER
+#define MAYBE_MEMORY_BARRIER \
+	__asm__("" : : : "memory");
 #define PWXFORM_SIMD(X) { \
 	__m128i H; \
 	__asm__( \
@@ -426,6 +433,7 @@ static volatile uint64_t Smask2var = Smask2;
 #define PWXFORM { \
 	uint8_t *Sw = S2 + w + PWXFORM_WRITE_OFFSET; \
 	FORCE_REGALLOC_3 \
+	MAYBE_MEMORY_BARRIER \
 	PWXFORM_ROUND \
 	PWXFORM_ROUND PWXFORM_WRITE \
 	PWXFORM_ROUND PWXFORM_WRITE \
