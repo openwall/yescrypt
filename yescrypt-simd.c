@@ -157,8 +157,7 @@ typedef union {
 	(out).q[2] = X2 = _mm_add_epi32(X2, Y2); \
 	(out).q[3] = X3 = _mm_add_epi32(X3, Y3);
 
-#define INTEGERIFY(x) \
-	_mm_cvtsi128_si32(x)
+#define INTEGERIFY _mm_cvtsi128_si32(X0)
 
 /**
  * Apply the Salsa20/8 core to the block provided in (X0 ... X3) ^ (Z0 ... Z3).
@@ -231,7 +230,7 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 		SALSA20_8_XOR_MEM(Bin2[i * 2 + 1], Bout[r + 1 + i])
 	}
 
-	return INTEGERIFY(X0);
+	return INTEGERIFY;
 }
 
 /**
@@ -547,7 +546,7 @@ static uint32_t blockmix_xor(const salsa20_blk_t *Bin1,
 
 	SALSA20_2(Bout[i])
 
-	return INTEGERIFY(X0);
+	return INTEGERIFY;
 }
 
 #undef XOR4
@@ -611,7 +610,7 @@ static uint32_t blockmix_xor_save(salsa20_blk_t *restrict Bin1out,
 
 	SALSA20_2(Bin1out[i])
 
-	return INTEGERIFY(X0);
+	return INTEGERIFY;
 }
 
 /**
