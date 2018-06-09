@@ -636,7 +636,7 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
     salsa20_blk_t *XY, pwxform_ctx_t *ctx)
 {
 	size_t s = 2 * r;
-	salsa20_blk_t *X = V, *Y;
+	salsa20_blk_t *X = V, *Y = &V[s];
 	uint32_t i, j;
 	size_t k;
 
@@ -648,27 +648,24 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 
 	if (VROM) {
 		uint32_t n;
-		salsa20_blk_t *V_n;
 		const salsa20_blk_t *V_j;
 
 		V_j = &VROM[(NROM - 1) * s];
-		Y = &V[s];
 		j = blockmix_xor(X, V_j, Y, r, 1, ctx) & (NROM - 1);
 		V_j = &VROM[j * s];
-		X = &V[2 * s];
+		X = Y + s;
 		j = blockmix_xor(Y, V_j, X, r, 1, ctx);
 
 		for (n = 2; n < N; n <<= 1) {
 			uint32_t m = (n < N / 2) ? n : (N - 1 - n);
-			V_n = &V[n * s];
 			for (i = 1; i < m; i += 2) {
 				j &= n - 1;
 				j += i - 1;
 				V_j = &V[j * s];
-				Y = &V_n[i * s];
+				Y = X + s;
 				j = blockmix_xor(X, V_j, Y, r, 0, ctx) & (NROM - 1);
 				V_j = &VROM[j * s];
-				X = &V_n[(i + 1) * s];
+				X = Y + s;
 				j = blockmix_xor(Y, V_j, X, r, 1, ctx);
 			}
 		}
@@ -677,26 +674,23 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 		j &= n - 1;
 		j += N - 2 - n;
 		V_j = &V[j * s];
-		Y = &V[(N - 1) * s];
+		Y = X + s;
 		j = blockmix_xor(X, V_j, Y, r, 0, ctx) & (NROM - 1);
 		V_j = &VROM[j * s];
-		X = XY;
-		blockmix_xor(Y, V_j, X, r, 1, ctx);
+		blockmix_xor(Y, V_j, XY, r, 1, ctx);
 	} else if (flags & YESCRYPT_RW) {
 		uint32_t n;
-		salsa20_blk_t *V_n, *V_j;
+		salsa20_blk_t *V_j;
 
-		Y = &V[s];
 		blockmix(X, Y, r, ctx);
-		X = &V[2 * s];
+		X = Y + s;
 		blockmix(Y, X, r, ctx);
 		j = integerify(X, r);
 
 		for (n = 2; n < N; n <<= 1) {
 			uint32_t m = (n < N / 2) ? n : (N - 1 - n);
-			V_n = &V[n * s];
 			for (i = 1; i < m; i += 2) {
-				Y = &V_n[i * s];
+				Y = X + s;
 				j &= n - 1;
 				j += i - 1;
 				V_j = &V[j * s];
@@ -704,7 +698,7 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 				j &= n - 1;
 				j += i;
 				V_j = &V[j * s];
-				X = &V_n[(i + 1) * s];
+				X = Y + s;
 				j = blockmix_xor(Y, V_j, X, r, 0, ctx);
 			}
 		}
@@ -713,30 +707,28 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 		j &= n - 1;
 		j += N - 2 - n;
 		V_j = &V[j * s];
-		Y = &V[(N - 1) * s];
+		Y = X + s;
 		j = blockmix_xor(X, V_j, Y, r, 0, ctx);
 		j &= n - 1;
 		j += N - 1 - n;
 		V_j = &V[j * s];
-		X = XY;
-		blockmix_xor(Y, V_j, X, r, 0, ctx);
+		blockmix_xor(Y, V_j, XY, r, 0, ctx);
 	} else {
-		for (i = 1; i < N - 1; i += 2) {
-			Y = &V[i * s];
+		N -= 2;
+		do {
 			blockmix_salsa8(X, Y, r);
-			X = &V[(i + 1) * s];
+			X = Y + s;
 			blockmix_salsa8(Y, X, r);
-		}
+			Y = X + s;
+		} while ((N -= 2));
 
-		Y = &V[i * s];
 		blockmix_salsa8(X, Y, r);
-		X = XY;
-		blockmix_salsa8(Y, X, r);
+		blockmix_salsa8(Y, XY, r);
 	}
 
 	for (k = 0; k < 2 * r; k++) {
 		for (i = 0; i < 16; i++) {
-			le32enc(&B[(k * 16 + (i * 5 % 16)) * 4], X[k].w[i]);
+			le32enc(&B[(k * 16 + (i * 5 % 16)) * 4], XY[k].w[i]);
 		}
 	}
 }
