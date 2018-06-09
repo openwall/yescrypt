@@ -180,9 +180,6 @@ typedef union {
 #define SALSA20_8_XOR_MEM(in, out) \
 	SALSA20_8_XOR_ANY(__m128i, (in).q[0], (in).q[1], (in).q[2], (in).q[3], out)
 
-#define SALSA20_8_XOR_REG(out) \
-	SALSA20_8_XOR_ANY(/* empty */, Y0, Y1, Y2, Y3, out)
-
 /**
  * blockmix_salsa8(Bin, Bout, r):
  * Compute Bout = BlockMix_{salsa20/8, r}(Bin).  The input Bin must be 128r
