@@ -108,7 +108,7 @@
 }
 #endif
 
-#define SALSA20_2ROUNDS(X0, X1, X2, X3) \
+#define SALSA20_2ROUNDS \
 	/* Operate on "columns" */ \
 	ARX(X1, X0, X3, 7) \
 	ARX(X2, X1, X0, 9) \
@@ -170,10 +170,8 @@ typedef union {
 	X3 = _mm_xor_si128(X3, Z3); \
 	{ \
 		SALSA20_BEGIN(maybe_decl) \
-		SALSA20_2ROUNDS(X0, X1, X2, X3) \
-		SALSA20_2ROUNDS(X0, X1, X2, X3) \
-		SALSA20_2ROUNDS(X0, X1, X2, X3) \
-		SALSA20_2ROUNDS(X0, X1, X2, X3) \
+		SALSA20_2ROUNDS SALSA20_2ROUNDS \
+		SALSA20_2ROUNDS SALSA20_2ROUNDS \
 		SALSA20_END(out) \
 	}
 
@@ -241,7 +239,7 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
  */
 #define SALSA20_2(out) { \
 	SALSA20_BEGIN(__m128i) \
-	SALSA20_2ROUNDS(X0, X1, X2, X3) \
+	SALSA20_2ROUNDS \
 	SALSA20_END(out) \
 }
 
