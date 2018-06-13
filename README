@@ -129,10 +129,10 @@ PERFORMANCE for their usage.
 
 	Alternate code versions and make targets.
 
-Three implementations of yescrypt are included: reference, partially
-optimized (without use of SIMD), and fully optimized for x86/x86-64
-(with use of SIMD intrinsics).  By default, one of the two optimized
-implementations is built as appropriate for the given machine.
+Two implementations of yescrypt are included: reference and optimized.
+By default, the optimized implementation is built.  Internally, the
+optimized implementation uses conditional compilation to choose between
+usage of various SIMD instruction sets where supported and scalar code.
 
 The reference implementation is unoptimized and is very slow, but it has
 simpler and shorter source code.  Its purpose is to provide a simple
@@ -140,14 +140,10 @@ human- and machine-readable specification that implementations intended
 for actual use should be tested against.  It is deliberately mostly not
 optimized, and it is not meant to be used in production.
 
-There are two additional make targets similar to "make check": they are
-"make check-ref" and "make check-opt".  These build and test the two
-included alternate code versions.
-
-Similarly, there are two make targets to build all of the programs along
-with either of the two alternate implementations.  These are simply
-"make ref" and "make opt".  After having used one of these, the
-"initrom" and "userom" programs will use that build's implementation.
+Similarly to "make check", there's "make check-ref" to build and test
+the reference implementation.  There's also "make ref" to build the
+reference implementation and have the "initrom" and "userom" programs
+use it.
 
 "make clean" may need to be run between making different builds.
 

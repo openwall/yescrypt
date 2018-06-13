@@ -1,4 +1,4 @@
-# Copyright 2013-2017 Alexander Peslyak
+# Copyright 2013-2018 Alexander Peslyak
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ CFLAGS = -Wall -O2 -fomit-frame-pointer $(OMPFLAGS_MAYBE) -DSKIP_MEMZERO
 LDFLAGS = -s -lrt $(OMPFLAGS_MAYBE)
 
 PROJ = tests phc-test initrom userom
-OBJS_CORE = yescrypt-best.o
+OBJS_CORE = yescrypt-opt.o
 OBJS_COMMON = yescrypt-common.o sha256.o insecure_memzero.o
 OBJS_TESTS = $(OBJS_CORE) $(OBJS_COMMON) tests.o
 OBJS_PHC = $(OBJS_CORE) $(OBJS_COMMON) phc-test.o
@@ -55,12 +55,6 @@ ref:
 check-ref:
 	$(MAKE) check OBJS_CORE=yescrypt-ref.o
 
-opt:
-	$(MAKE) $(PROJ) OBJS_CORE=yescrypt-opt.o
-
-check-opt:
-	$(MAKE) check OBJS_CORE=yescrypt-opt.o
-
 tests: $(OBJS_TESTS)
 	$(LD) $(LDFLAGS) $(OBJS_TESTS) -o $@
 
@@ -82,8 +76,6 @@ userom.o: userom.c
 .c.o:
 	$(CC) -c $(CFLAGS) $*.c
 
-yescrypt-best.o: yescrypt-platform.c yescrypt-simd.c yescrypt-opt.c
-yescrypt-simd.o: yescrypt-platform.c
 yescrypt-opt.o: yescrypt-platform.c
 
 clean:
