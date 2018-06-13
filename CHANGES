@@ -1,3 +1,8 @@
+	Changes made between 1.0.2 (2018/06/06) and 1.0.3 (2018/06/13).
+
+In SMix1, optimized out the indexing of V for the sequential writes.
+
+
 	Changes made between 1.0.1 (2018/04/22) and 1.0.2 (2018/06/06).
 
 Don't use MAP_POPULATE anymore because new multi-threaded benchmarks on
