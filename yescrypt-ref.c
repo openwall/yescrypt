@@ -31,10 +31,10 @@
  * human- and machine-readable specification that implementations intended
  * for actual use should be tested against.  It is deliberately mostly not
  * optimized, and it is not meant to be used in production.  Instead, use
- * yescrypt-best.c or one of the source files included from there.
+ * yescrypt-opt.c.
  */
 
-#warning "This reference implementation is deliberately mostly not optimized, nor does it make any attempt not to leave sensitive data in memory. Use yescrypt-best.c instead unless you're testing (against) the reference implementation on purpose."
+#warning "This reference implementation is deliberately mostly not optimized, nor does it make any attempt not to leave sensitive data in memory. Use yescrypt-opt.c instead unless you're testing (against) the reference implementation on purpose."
 
 #include <errno.h>
 #include <stdint.h>
