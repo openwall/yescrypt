@@ -448,10 +448,10 @@ static uint32_t blockmix_salsa8_xor(const salsa20_blk_t *restrict Bin1,
 #define MOVQ "movd"
 #endif
 #define EXTRACT64(X) ({ \
-		uint64_t result; \
-		__asm__(MOVQ " %1, %0" : "=r" (result) : "x" (X)); \
-		result; \
-	})
+	uint64_t result; \
+	__asm__(MOVQ " %1, %0" : "=r" (result) : "x" (X)); \
+	result; \
+})
 #elif defined(__x86_64__) && !defined(_MSC_VER) && !defined(__OPEN64__)
 /* MSVC and Open64 had bugs */
 #define EXTRACT64(X) _mm_cvtsi128_si64(X)
