@@ -139,7 +139,7 @@ static void blockmix_salsa8(uint32_t *B, uint32_t *Y, size_t r)
 		blkcpy(&B[(i + r) * 16], &Y[(i * 2 + 1) * 16], 16);
 }
 
-/* These are tunable */
+/* These are tunable, but they must meet certain constraints */
 #define PWXsimple 2
 #define PWXgather 4
 #define PWXrounds 6
