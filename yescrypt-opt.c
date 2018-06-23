@@ -787,7 +787,7 @@ static inline uint32_t integerify(const salsa20_blk_t *B, size_t r)
  * smix1(B, r, N, flags, V, NROM, VROM, XY, ctx):
  * Compute first loop of B = SMix_r(B, N).  The input B must be 128r bytes in
  * length; the temporary storage V must be 128rN bytes in length; the temporary
- * storage XY must be 128r bytes in length.  N must be even and at least 4.
+ * storage XY must be 128r+64 bytes in length.  N must be even and at least 4.
  * The array V must be aligned to a multiple of 64 bytes, and arrays B and XY
  * to a multiple of at least 16 bytes.
  */
