@@ -222,13 +222,13 @@ static void pwxform(uint32_t *B, pwxform_ctx_t *ctx)
 }
 
 /**
- * blockmix_pwxform(B, Y, ctx, r):
+ * blockmix_pwxform(B, ctx, r):
  * Compute B = BlockMix_pwxform{salsa20/2, ctx, r}(B).  The input B must be
- * 128r bytes in length; the temporary space Y must be at least PWXbytes.
+ * 128r bytes in length.
  */
-static void blockmix_pwxform(uint32_t *B,
-    uint32_t *Y, pwxform_ctx_t *ctx, size_t r)
+static void blockmix_pwxform(uint32_t *B, pwxform_ctx_t *ctx, size_t r)
 {
+	uint32_t X[PWXwords];
 	size_t r1, i;
 
 	/* Convert 128-byte blocks to PWXbytes blocks */
@@ -236,21 +236,21 @@ static void blockmix_pwxform(uint32_t *B,
 	r1 = 128 * r / PWXbytes;
 
 	/* 2: X <-- B'_{r_1 - 1} */
-	blkcpy(Y, &B[(r1 - 1) * PWXwords], PWXwords);
+	blkcpy(X, &B[(r1 - 1) * PWXwords], PWXwords);
 
 	/* 3: for i = 0 to r_1 - 1 do */
 	for (i = 0; i < r1; i++) {
 		/* 4: if r_1 > 1 */
 		if (r1 > 1) {
 			/* 5: X <-- X xor B'_i */
-			blkxor(Y, &B[i * PWXwords], PWXwords);
+			blkxor(X, &B[i * PWXwords], PWXwords);
 		}
 
 		/* 7: X <-- pwxform(X) */
-		pwxform(Y, ctx);
+		pwxform(X, ctx);
 
 		/* 8: B'_i <-- X */
-		blkcpy(&B[i * PWXwords], Y, PWXwords);
+		blkcpy(&B[i * PWXwords], X, PWXwords);
 	}
 
 	/* 10: i <-- floor((r_1 - 1) * PWXbytes / 64) */
@@ -259,12 +259,14 @@ static void blockmix_pwxform(uint32_t *B,
 	/* 11: B_i <-- H(B_i) */
 	salsa20(&B[i * 16], 2);
 
+#if 1 /* No-op with our current pwxform settings, but do it to make sure */
 	/* 12: for i = i + 1 to 2r - 1 do */
 	for (i++; i < 2 * r; i++) {
 		/* 13: B_i <-- H(B_i xor B_{i-1}) */
 		blkxor(&B[i * 16], &B[(i - 1) * 16], 16);
 		salsa20(&B[i * 16], 2);
 	}
+#endif
 }
 
 /**
@@ -349,7 +351,7 @@ static void smix1(uint32_t *B, size_t r, uint64_t N, yescrypt_flags_t flags,
 
 		/* 4: X <-- H(X) */
 		if (ctx)
-			blockmix_pwxform(X, Y, ctx, r);
+			blockmix_pwxform(X, ctx, r);
 		else
 			blockmix_salsa8(X, Y, r);
 	}
@@ -403,7 +405,7 @@ static void smix2(uint32_t *B, size_t r, uint64_t N, uint64_t Nloop,
 
 		/* 8.2: X <-- H(X) */
 		if (ctx)
-			blockmix_pwxform(X, Y, ctx, r);
+			blockmix_pwxform(X, ctx, r);
 		else
 			blockmix_salsa8(X, Y, r);
 	}
