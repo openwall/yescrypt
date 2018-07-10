@@ -825,7 +825,7 @@ int yescrypt_init_shared(yescrypt_shared_t *shared,
 
 	half1 = half2 = *shared;
 	half1.aligned_size /= 2;
-	half2.aligned += half1.aligned_size;
+	half2.aligned = (uint8_t *)half2.aligned + half1.aligned_size;
 	half2.aligned_size = half1.aligned_size;
 	N /= 2;
 
@@ -918,5 +918,6 @@ int yescrypt_init_local(yescrypt_local_t *local)
 int yescrypt_free_local(yescrypt_local_t *local)
 {
 /* The reference implementation frees its memory in yescrypt_kdf() */
+	(void)local; /* unused */
 	return 0;
 }

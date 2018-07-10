@@ -194,12 +194,12 @@ static inline void salsa20_simd_unshuffle(const salsa20_blk_t *Bin,
  * Apply the Salsa20 core to the block provided in (X0 ... X3).
  */
 #define SALSA20_wrapper(out, rounds) { \
-	__m128i Y0 = X0, Y1 = X1, Y2 = X2, Y3 = X3; \
+	__m128i Z0 = X0, Z1 = X1, Z2 = X2, Z3 = X3; \
 	rounds \
-	(out).q[0] = X0 = _mm_add_epi32(X0, Y0); \
-	(out).q[1] = X1 = _mm_add_epi32(X1, Y1); \
-	(out).q[2] = X2 = _mm_add_epi32(X2, Y2); \
-	(out).q[3] = X3 = _mm_add_epi32(X3, Y3); \
+	(out).q[0] = X0 = _mm_add_epi32(X0, Z0); \
+	(out).q[1] = X1 = _mm_add_epi32(X1, Z1); \
+	(out).q[2] = X2 = _mm_add_epi32(X2, Z2); \
+	(out).q[3] = X3 = _mm_add_epi32(X3, Z3); \
 }
 
 /**
@@ -1395,8 +1395,10 @@ int yescrypt_kdf(const yescrypt_shared_t *shared, yescrypt_local_t *local,
 	retval = yescrypt_kdf_body(shared, local,
 	    passwd, passwdlen, salt, saltlen,
 	    flags, N, r, p, t, NROM, buf, buflen);
+#ifndef SKIP_MEMZERO
 	if (passwd == dk)
 		insecure_memzero(dk, sizeof(dk));
+#endif
 	return retval;
 }
 
@@ -1440,7 +1442,7 @@ int yescrypt_init_shared(yescrypt_shared_t *shared,
 	half1 = *shared;
 	half1.aligned_size /= 2;
 	half2 = half1;
-	half2.aligned += half1.aligned_size;
+	half2.aligned = (uint8_t *)half2.aligned + half1.aligned_size;
 
 	if (yescrypt_kdf(NULL, &half1,
 	    seed, seedlen, (uint8_t *)"yescrypt-ROMhash", 16, &subparams,

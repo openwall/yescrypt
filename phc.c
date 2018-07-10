@@ -1,5 +1,5 @@
 /*-
- * Copyright 2014-2016 Alexander Peslyak
+ * Copyright 2014-2016,2018 Alexander Peslyak
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,9 +88,8 @@ static void print_all_PHS(unsigned int t_cost, unsigned int m_cost)
 	clock_t clk_tck = sysconf(_SC_CLK_TCK);
 	struct tms start_tms, end_tms;
 	clock_t start = times(&start_tms), end, start_v, end_v;
-	const int count = 0x102;
-	size_t inlen;
-	int i, j;
+	const size_t count = 0x102;
+	size_t inlen, i, j;
 
 	inlen = 0;
 	for (i = 0; i < count; i++) {
@@ -127,7 +126,7 @@ static void print_all_PHS(unsigned int t_cost, unsigned int m_cost)
 	    (unsigned long long)count, (double)(end - start) / clk_tck);
 }
 
-int main(int argc, const char * const *argv)
+int main(void)
 {
 #if 0
 	setvbuf(stdout, NULL, _IOLBF, 0);

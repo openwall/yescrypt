@@ -50,7 +50,7 @@ static void print_PBKDF2_SHA256_raw(const char *passwd, size_t passwdlen,
     const char *salt, size_t saltlen, uint64_t c, size_t dkLen)
 {
 	uint8_t dk[64];
-	int i;
+	size_t i;
 
 	assert(dkLen <= sizeof(dk));
 
@@ -83,7 +83,7 @@ static void print_scrypt(const char *passwd, const char *salt,
     uint64_t N, uint32_t r, uint32_t p)
 {
 	uint8_t dk[64];
-	int i;
+	size_t i;
 
 	printf("scrypt(\"%s\", \"%s\", %llu, %u, %u) =",
 	    passwd, salt, (unsigned long long)N, r, p);
@@ -107,9 +107,9 @@ static void print_yescrypt(const char *passwd, const char *salt,
     uint32_t dklen)
 {
 	yescrypt_local_t local;
-	yescrypt_params_t params = {flags, N, r, p, t, g};
+	yescrypt_params_t params = {flags, N, r, p, t, g, 0};
 	uint8_t dk[64];
-	int i;
+	uint32_t i;
 
 #if 1
 	/* Don't test hash upgrades */
@@ -141,7 +141,7 @@ static void print_yescrypt(const char *passwd, const char *salt,
 }
 #endif
 
-int main(int argc, const char * const *argv)
+int main(void)
 {
 	int i;
 
@@ -234,7 +234,7 @@ int main(int argc, const char * const *argv)
 					N_log2++;
 			}
 			yescrypt_params_t params =
-			    {flags, (uint64_t)1 << N_log2, r, p};
+			    {flags, (uint64_t)1 << N_log2, r, p, 0, 0, 0};
 			setting = yescrypt_encode_params(&params,
 			    (const uint8_t *)"WZaPV7LSUEKMo34.", 16 - (i & 15));
 			if (i == 0)
@@ -361,11 +361,9 @@ int main(int argc, const char * const *argv)
 
 		shared.aligned_size = ((uint64_t)1 << NROM_log2) * 128 * r;
 		shared.base_size = shared.aligned_size + 63;
-		shared.base = malloc(shared.base_size);
-		shared.aligned = (uint8_t *)shared.base + 63;
-		shared.aligned -= (uintptr_t)shared.aligned & 63;
-
-		void *where = shared.aligned;
+		uint8_t *where = shared.base = malloc(shared.base_size);
+		where += 63;
+		where = shared.aligned = where - ((uintptr_t)where & 63);
 
 		printf("Initializing ROM in preallocated memory ...");
 		fflush(stdout);
@@ -379,7 +377,7 @@ int main(int argc, const char * const *argv)
 		printf(" DONE (%02x%02x%02x%02x)\n",
 		    digest->uc[0], digest->uc[1], digest->uc[2], digest->uc[3]);
 
-		if (where != shared.aligned)
+		if ((void *)where != shared.aligned)
 			puts("YESCRYPT_SHARED_PREALLOCATED failed");
 #endif
 

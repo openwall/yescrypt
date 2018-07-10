@@ -321,15 +321,15 @@ int main(int argc, const char * const *argv)
 				thread_data_s *td = &thread_data[omp_get_thread_num()].s;
 				uint64_t start1 = time_us();
 #if 1
-				const uint8_t *h = yescrypt_r(shared,
-				    &td->local,
+				const char *h = (const char *)yescrypt_r(
+				    shared, &td->local,
 				    (const uint8_t *)p, strlen(p),
 				    setting, &key, hash, sizeof(hash));
 #else
 				yescrypt_local_t local;
 				yescrypt_init_local(&local);
-				const uint8_t *h = yescrypt_r(shared,
-				    &local,
+				const char *h = (const char *)yescrypt_r(
+				    shared, &local,
 				    (const uint8_t *)p, strlen(p),
 				    setting, &key, hash, sizeof(hash));
 				yescrypt_free_local(&local);
@@ -343,10 +343,10 @@ int main(int argc, const char * const *argv)
 					td->min = diff1;
 				if (diff1 > td->max)
 					td->max = diff1;
-				if (j < nsave && strcmp(save[j], (char *)h)) {
+				if (j < nsave && strcmp(save[j], h)) {
 #pragma omp critical
 					printf("Mismatch at %u, %s != %s\n",
-					    j, save[j], (char *)h);
+					    j, save[j], h);
 				}
 			}
 

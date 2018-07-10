@@ -428,7 +428,7 @@ uint8_t *yescrypt_r(const yescrypt_shared_t *shared, yescrypt_local_t *local,
 		saltlen = sizeof(saltbin);
 		saltend = decode64(saltbin, &saltlen, saltstr, saltstrlen);
 
-		if (!saltend || saltend - saltstr != saltstrlen)
+		if (!saltend || (size_t)(saltend - saltstr) != saltstrlen)
 			goto fail;
 
 		salt = saltbin;
