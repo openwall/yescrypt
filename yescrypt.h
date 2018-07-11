@@ -33,6 +33,10 @@
 #include <stdint.h>
 #include <stdlib.h> /* for size_t */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * crypto_scrypt(passwd, passwdlen, salt, saltlen, N, r, p, buf, buflen):
  * Compute scrypt(passwd[0 .. passwdlen - 1], salt[0 .. saltlen - 1], N, r,
@@ -334,5 +338,9 @@ extern uint8_t *yescrypt_encode_params_r(const yescrypt_params_t *params,
  */
 extern uint8_t *yescrypt_encode_params(const yescrypt_params_t *params,
     const uint8_t *src, size_t srclen);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !_YESCRYPT_H_ */

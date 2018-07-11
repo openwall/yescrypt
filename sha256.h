@@ -30,6 +30,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Use #defines in order to avoid namespace collisions with anyone else's
  * SHA256 code (e.g., the code in OpenSSL).
@@ -117,5 +121,9 @@ void HMAC_SHA256_Buf(const void *, size_t, const void *, size_t, uint8_t[32]);
  */
 void PBKDF2_SHA256(const uint8_t *, size_t, const uint8_t *, size_t,
     uint64_t, uint8_t *, size_t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !_SHA256_H_ */
