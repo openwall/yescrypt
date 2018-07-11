@@ -153,3 +153,40 @@ use it.
 This yescrypt distribution is a work-in-progress.  Its interfaces other
 than crypto_scrypt() are subject to change in future revisions, however
 no incompatible changes to the yescrypt algorithm are expected.
+
+
+	Credits.
+
+scrypt has been designed by Colin Percival.  yescrypt has been designed
+by Solar Designer building upon scrypt.
+
+The following other people and projects have also indirectly helped make
+yescrypt what it is:
+
+ - Bill Cox
+ - Rich Felker
+ - Anthony Ferrara
+ - Christian Forler
+ - Taylor Hornby
+ - Dmitry Khovratovich
+ - Samuel Neves
+ - Marcos Simplicio
+ - Ken T Takusagawa
+ - Jakob Wenzel
+ - Christian Winnerlein
+
+ - DARPA Cyber Fast Track
+ - Password Hashing Competition
+
+
+	Contact info.
+
+First, please check the yescrypt homepage for new versions, etc.:
+
+    http://www.openwall.com/yescrypt/
+
+If you have anything valuable to add or a non-trivial question to ask,
+you may join and post to the yescrypt mailing list (referenced on the
+yescrypt homepage above) or contact the maintainer of yescrypt at:
+
+    Solar Designer <solar at openwall.com>
