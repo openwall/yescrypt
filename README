@@ -94,15 +94,15 @@ yescrypt's drawbacks:
 Please refer to COMPARISON for a lot more detail and other observations.
 
 
-	A note on cryptocoins.
+	A note on cryptocurrencies.
 
-Although multiple CPU mining focused cryptocoins already use yescrypt
-0.5'ish as their proof-of-work (PoW) scheme, we currently do not
-recommend yescrypt 1.0+ for use by cryptocoins.  If you feel like
-starting a new coin or forking one, for now please use the exact same
-older revision of yescrypt that other coins already use (this is also
-easier for you to do, through forking another coin's existing codebase).
-We might introduce a special mode optimized for the PoW use case later.
+For historical reasons, multiple CPU mining focused cryptocurrencies use
+yescrypt 0.5'ish as their proof-of-work (PoW) scheme.  We currently have
+a separate project for the PoW use case: yespower.  Thus, rather than
+misuse yescrypt 1.0+ for PoW, those and other projects are advised to
+use yespower 1.0+ instead.  The yespower homepage is:
+
+    http://www.openwall.com/yespower/
 
 
 	How to test yescrypt for proper operation.
