@@ -1,3 +1,16 @@
+	Changes made between 1.0.3 (2018/06/13) and 1.1.x (TBD).
+
+Merged yescrypt-opt.c and yescrypt-simd.c into one source file, which is
+a closer match to -simd but is called -opt (and -simd is now gone).
+With this change, performance of SIMD builds should be almost unchanged,
+while scalar builds should be faster than before on register-rich 64-bit
+architectures but may be slower than before on register-starved 32-bit
+architectures (this shortcoming may be addressed later).  This also
+happens to make SSE prefetch available even in otherwise-scalar builds
+and it paves the way for adding SIMD support on big-endian architectures
+(previously, -simd assumed little-endian).
+
+
 	Changes made between 1.0.2 (2018/06/06) and 1.0.3 (2018/06/13).
 
 In SMix1, optimized out the indexing of V for the sequential writes.
