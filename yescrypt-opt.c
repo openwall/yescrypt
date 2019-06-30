@@ -1450,7 +1450,7 @@ int yescrypt_init_shared(yescrypt_shared_t *shared,
 	half2.aligned = (uint8_t *)half2.aligned + half1.aligned_size;
 
 	if (yescrypt_kdf(NULL, &half1,
-	    seed, seedlen, (uint8_t *)"yescrypt-ROMhash", 16, &subparams,
+	    seed, seedlen, (const uint8_t *)"yescrypt-ROMhash", 16, &subparams,
 	    salt, sizeof(salt)))
 		goto fail;
 
