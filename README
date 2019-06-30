@@ -102,7 +102,7 @@ a separate project for the PoW use case: yespower.  Thus, rather than
 misuse yescrypt 1.0+ for PoW, those and other projects are advised to
 use yespower 1.0+ instead.  The yespower homepage is:
 
-    http://www.openwall.com/yespower/
+    https://www.openwall.com/yespower/
 
 
 	How to test yescrypt for proper operation.
@@ -183,7 +183,7 @@ yescrypt what it is:
 
 First, please check the yescrypt homepage for new versions, etc.:
 
-    http://www.openwall.com/yescrypt/
+    https://www.openwall.com/yescrypt/
 
 If you have anything valuable to add or a non-trivial question to ask,
 you may join and post to the yescrypt mailing list (referenced on the
