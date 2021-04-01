@@ -5,6 +5,11 @@ hashing scheme.  It builds upon Colin Percival's scrypt.  This
 implementation is able to compute native yescrypt hashes as well as
 classic scrypt.
 
+As of this writing, yescrypt is the default password hashing scheme on
+recent ALT Linux, Debian testing, and Kali Linux 2021.1+.  It is also
+supported in Fedora 29+ (and is recommended for new passwords in Fedora
+CoreOS) and in Ubuntu 20.04+.
+
 
 	Why yescrypt?
 
@@ -87,9 +92,9 @@ yescrypt's advantages:
 yescrypt's drawbacks:
 
  - Complex
- - Cache-timing unsafe
- - Not the PHC winner
- - Not available in third-party libraries yet
+ - Cache-timing unsafe (like scrypt and Argon2d, but unlike Argon2i)
+ - Not the PHC winner (Argon2 is), but is merely a "special recognition"
+ - Supported in fewer third-party projects
 
 Please refer to COMPARISON for a lot more detail and other observations.
 
