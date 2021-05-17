@@ -1,3 +1,10 @@
+	Changes made since 1.1.0 (2019/06/30).
+
+Implemented a little-known SHA-2 Maj() optimization proposed by Wei Dai.
+
+Minor code cleanups and documentation updates.
+
+
 	Changes made between 1.0.3 (2018/06/13) and 1.1.0 (2019/06/30).
 
 Merged yescrypt-opt.c and yescrypt-simd.c into one source file, which is
