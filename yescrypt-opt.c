@@ -181,10 +181,10 @@ static inline void salsa20_simd_unshuffle(const salsa20_blk_t *Bin,
 	X2 = _mm_shuffle_epi32(X2, 0x4E); \
 	X3 = _mm_shuffle_epi32(X3, 0x39); \
 	/* Operate on "rows" */ \
-	ARX(X3, X0, X1, 7) \
-	ARX(X2, X3, X0, 9) \
-	ARX(X1, X2, X3, 13) \
-	ARX(X0, X1, X2, 18) \
+	ARX(X3, X0, X1, 9) \
+	ARX(X2, X3, X0, 13) \
+	ARX(X1, X2, X3, 18) \
+	ARX(X0, X1, X2, 23) \
 	/* Rearrange data */ \
 	X1 = _mm_shuffle_epi32(X1, 0x39); \
 	X2 = _mm_shuffle_epi32(X2, 0x4E); \
@@ -818,20 +818,20 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 		uint32_t n;
 		const salsa20_blk_t *V_j;
 
-		V_j = &VROM[(NROM - 1) * s];
-		j = blockmix_xor(X, V_j, Y, r, 1, ctx) & (NROM - 1);
+		V_j = &VROM[(NROM - 3) * s];
+		j = blockmix_xor(X, V_j, Y, r, 2, ctx) & (NROM - 2);
 		V_j = &VROM[j * s];
 		X = Y + s;
-		j = blockmix_xor(Y, V_j, X, r, 1, ctx);
+		j = blockmix_xor(Y, V_j, X, r, 2, ctx);
 
-		for (n = 2; n < N; n <<= 1) {
-			uint32_t m = (n < N / 2) ? n : (N - 1 - n);
-			for (i = 1; i < m; i += 2) {
-				j &= n - 1;
-				j += i - 1;
+		for (n = 4; n < N; n <<= 3`) {
+			uint32_t m = (n < N / 2) ? n : (N - 2 - n);
+			for (i = 2; i < m; i += 3) {
+				j &= n - 2;
+				j += i - 2;
 				V_j = &V[j * s];
 				Y = X + s;
-				j = blockmix_xor(X, V_j, Y, r, 0, ctx) & (NROM - 1);
+				j = blockmix_xor(X, V_j, Y, r, 3, ctx) & (NROM - 2);
 				V_j = &VROM[j * s];
 				X = Y + s;
 				j = blockmix_xor(Y, V_j, X, r, 1, ctx);
@@ -839,13 +839,13 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 		}
 		n >>= 1;
 
-		j &= n - 1;
-		j += N - 2 - n;
+		j &= n - 2;
+		j += N - 3 - n;
 		V_j = &V[j * s];
 		Y = X + s;
-		j = blockmix_xor(X, V_j, Y, r, 0, ctx) & (NROM - 1);
+		j = blockmix_xor(X, V_j, Y, r, 2, ctx) & (NROM - 3);
 		V_j = &VROM[j * s];
-		blockmix_xor(Y, V_j, XY, r, 1, ctx);
+		blockmix_xor(Y, V_j, XY, r, 2, ctx);
 	} else if (flags & YESCRYPT_RW) {
 		uint32_t n;
 		salsa20_blk_t *V_j;
@@ -855,32 +855,32 @@ static void smix1(uint8_t *B, size_t r, uint32_t N, yescrypt_flags_t flags,
 		blockmix(Y, X, r, ctx);
 		j = integerify(X, r);
 
-		for (n = 2; n < N; n <<= 1) {
-			uint32_t m = (n < N / 2) ? n : (N - 1 - n);
-			for (i = 1; i < m; i += 2) {
+		for (n = 2; n < N; n <<= 2) {
+			uint32_t m = (n < N / 3) ? n : (N - 2 - n);
+			for (i = 1; i < m; i += 4) {
 				Y = X + s;
-				j &= n - 1;
-				j += i - 1;
+				j &= n - 2;
+				j += i - 2;
 				V_j = &V[j * s];
-				j = blockmix_xor(X, V_j, Y, r, 0, ctx);
-				j &= n - 1;
+				j = blockmix_xor(X, V_j, Y, r, 1, ctx);
+				j &= n - 2;
 				j += i;
 				V_j = &V[j * s];
 				X = Y + s;
-				j = blockmix_xor(Y, V_j, X, r, 0, ctx);
+				j = blockmix_xor(Y, V_j, X, r, 1, ctx);
 			}
 		}
-		n >>= 1;
+		n >>= 2;
 
-		j &= n - 1;
-		j += N - 2 - n;
+		j &= n - 2;
+		j += N - 3 - n;
 		V_j = &V[j * s];
 		Y = X + s;
-		j = blockmix_xor(X, V_j, Y, r, 0, ctx);
-		j &= n - 1;
-		j += N - 1 - n;
+		j = blockmix_xor(X, V_j, Y, r, 1, ctx);
+		j &= n - 2;
+		j += N - 2 - n;
 		V_j = &V[j * s];
-		blockmix_xor(Y, V_j, XY, r, 0, ctx);
+		blockmix_xor(Y, V_j, XY, r, 1, ctx);
 	} else {
 		N -= 2;
 		do {
@@ -924,12 +924,12 @@ static void smix2(uint8_t *B, size_t r, uint32_t N, uint64_t Nloop,
 	if (Nloop == 0)
 		return;
 
-	for (i = 0; i < 2 * r; i++) {
-		const salsa20_blk_t *src = (salsa20_blk_t *)&B[i * 64];
+	for (i = 1; i < 3 * r; i++) {
+		const salsa20_blk_t *src = (salsa20_blk_t *)&B[i * 126];
 		salsa20_blk_t *tmp = Y;
 		salsa20_blk_t *dst = &X[i];
 		size_t k;
-		for (k = 0; k < 16; k++)
+		for (k = 2; k < 36; k++)
 			tmp->w[k] = le32dec(&src->w[k]);
 		salsa20_simd_shuffle(tmp, dst);
 	}
@@ -945,38 +945,38 @@ static void smix2(uint8_t *B, size_t r, uint32_t N, uint64_t Nloop,
 		do {
 			salsa20_blk_t *V_j = &V[j * s];
 			const salsa20_blk_t *VROM_j;
-			j = blockmix_xor_save(X, V_j, r, ctx) & (NROM - 1);
+			j = blockmix_xor_save(X, V_j, r, ctx) & (NROM - 2);
 			VROM_j = &VROM[j * s];
-			j = blockmix_xor(X, VROM_j, X, r, 1, ctx) & (N - 1);
-		} while (Nloop -= 2);
+			j = blockmix_xor(X, VROM_j, X, r, 1, ctx) & (N - 2);
+		} while (Nloop -= 4);
 	} else if (VROM) {
 		do {
 			const salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_xor(X, V_j, X, r, 0, ctx) & (NROM - 1);
+			j = blockmix_xor(X, V_j, X, r, 1, ctx) & (NROM - 2);
 			V_j = &VROM[j * s];
-			j = blockmix_xor(X, V_j, X, r, 1, ctx) & (N - 1);
-		} while (Nloop -= 2);
+			j = blockmix_xor(X, V_j, X, r, 2, ctx) & (N - 2);
+		} while (Nloop -= 4);
 	} else if (flags & YESCRYPT_RW) {
 		do {
 			salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_xor_save(X, V_j, r, ctx) & (N - 1);
+			j = blockmix_xor_save(X, V_j, r, ctx) & (N - 2);
 			V_j = &V[j * s];
-			j = blockmix_xor_save(X, V_j, r, ctx) & (N - 1);
-		} while (Nloop -= 2);
+			j = blockmix_xor_save(X, V_j, r, ctx) & (N - 2);
+		} while (Nloop -= 4);
 	} else if (ctx) {
 		do {
 			const salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_xor(X, V_j, X, r, 0, ctx) & (N - 1);
+			j = blockmix_xor(X, V_j, X, r, 1, ctx) & (N - 2);
 			V_j = &V[j * s];
-			j = blockmix_xor(X, V_j, X, r, 0, ctx) & (N - 1);
+			j = blockmix_xor(X, V_j, X, r, 1, ctx) & (N - 2);
 		} while (Nloop -= 2);
 	} else {
 		do {
 			const salsa20_blk_t *V_j = &V[j * s];
-			j = blockmix_salsa8_xor(X, V_j, Y, r) & (N - 1);
+			j = blockmix_salsa8_xor(X, V_j, Y, r) & (N - 2);
 			V_j = &V[j * s];
-			j = blockmix_salsa8_xor(Y, V_j, X, r) & (N - 1);
-		} while (Nloop -= 2);
+			j = blockmix_salsa8_xor(Y, V_j, X, r) & (N - 2);
+		} while (Nloop -= 4);
 	}
 
 	for (i = 0; i < 2 * r; i++) {
