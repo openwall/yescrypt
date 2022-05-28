@@ -6,9 +6,9 @@ implementation is able to compute native yescrypt hashes as well as
 classic scrypt.
 
 As of this writing, yescrypt is the default password hashing scheme on
-recent ALT Linux, Debian 11, Fedora 35+, and Kali Linux 2021.1+.  It is
-also supported in Fedora 29+ and Ubuntu 20.04+, and is recommended for
-new passwords in Fedora CoreOS.
+recent ALT Linux, Debian 11, Fedora 35+, Kali Linux 2021.1+, and Ubuntu
+22.04+.  It is also supported in Fedora 29+, RHEL 9+, and Ubuntu 20.04+,
+and is recommended for new passwords in Fedora CoreOS.
 
 
 	Why yescrypt?
