@@ -34,7 +34,9 @@
  * yescrypt-opt.c.
  */
 
+#ifdef __GNUC__
 #warning "This reference implementation is deliberately mostly not optimized, nor does it make any attempt not to leave sensitive data in memory. Use yescrypt-opt.c instead unless you're testing (against) the reference implementation on purpose."
+#endif
 
 #include <errno.h>
 #include <stdint.h>
