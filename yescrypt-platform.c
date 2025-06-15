@@ -64,7 +64,7 @@ static void *alloc_region(yescrypt_region_t *region, size_t size)
 	}
 
 #else
-	base = mmap(NULL, size, PROT_READ | PROT_WRITE, flags, -1, 0);
+	base = (void *)mmap(NULL, size, PROT_READ | PROT_WRITE, flags, -1, 0);
 #endif
 	if (base == MAP_FAILED)
 		base = NULL;
