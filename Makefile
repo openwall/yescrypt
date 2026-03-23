@@ -16,17 +16,21 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-CC = gcc
+CC = cc
 LD = $(CC)
 RM = rm -f
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+OMPFLAGS = -Xpreprocessor -fopenmp -I$(shell brew --prefix libomp)/include
+OMPFLAGS_MAYBE = $(OMPFLAGS)
+CFLAGS = -Wall -O2 -fomit-frame-pointer $(OMPFLAGS_MAYBE) -DSKIP_MEMZERO
+LDFLAGS = -L$(shell brew --prefix libomp)/lib -lomp $(OMPFLAGS_MAYBE)
+else
 OMPFLAGS = -fopenmp
 OMPFLAGS_MAYBE = $(OMPFLAGS)
-#CFLAGS = -Wall -O2 -fomit-frame-pointer $(OMPFLAGS_MAYBE) -DSKIP_MEMZERO
 CFLAGS = -Wall -O2 -march=native -fomit-frame-pointer $(OMPFLAGS_MAYBE) -DSKIP_MEMZERO
-#CFLAGS = -Wall -O2 -funroll-loops -fomit-frame-pointer $(OMPFLAGS_MAYBE) -DSKIP_MEMZERO
-#CFLAGS = -Wall -O2 -march=native -funroll-loops -fomit-frame-pointer $(OMPFLAGS_MAYBE) -DSKIP_MEMZERO
-# -lrt is for userom's use of clock_gettime()
 LDFLAGS = -s -lrt $(OMPFLAGS_MAYBE)
+endif
 
 PROJ = tests phc-test initrom userom
 OBJS_CORE = yescrypt-opt.o
