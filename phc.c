@@ -52,8 +52,60 @@ int PHS(void *out, size_t outlen, const void *in, size_t inlen,
 
 #ifdef TEST
 #include <stdio.h>
+#ifdef _MSC_VER
+/*
+ * MSVC lacks the POSIX <unistd.h> and <sys/times.h> interfaces used for timing
+ * below.  Provide a minimal Win32-based shim; the timing it produces is only
+ * printed to stderr, so it does not affect the hashes compared by the tests.
+ */
+#include <time.h>
+#include <windows.h>
+
+struct tms {
+	clock_t tms_utime;
+	clock_t tms_stime;
+	clock_t tms_cutime;
+	clock_t tms_cstime;
+};
+
+#define _SC_CLK_TCK 1
+
+/* Report a 1 ms tick so wall- and CPU-times share the same units. */
+static long sysconf(int name)
+{
+	(void)name;
+	return 1000;
+}
+
+/* 100 ns FILETIME units -> 1 ms ticks. */
+static clock_t filetime_to_ticks(const FILETIME *ft)
+{
+	ULARGE_INTEGER t;
+	t.LowPart = ft->dwLowDateTime;
+	t.HighPart = ft->dwHighDateTime;
+	return (clock_t)(t.QuadPart / 10000);
+}
+
+/* Wall-clock as return value (1 ms ticks), process CPU times in *buf. */
+static clock_t times(struct tms *buf)
+{
+	FILETIME creation, exit, kernel, user;
+	LARGE_INTEGER freq, now;
+
+	GetProcessTimes(GetCurrentProcess(), &creation, &exit, &kernel, &user);
+	buf->tms_utime = filetime_to_ticks(&user);
+	buf->tms_stime = filetime_to_ticks(&kernel);
+	buf->tms_cutime = 0;
+	buf->tms_cstime = 0;
+
+	QueryPerformanceFrequency(&freq);
+	QueryPerformanceCounter(&now);
+	return (clock_t)(now.QuadPart * 1000 / freq.QuadPart);
+}
+#else
 #include <unistd.h> /* for sysconf() */
 #include <sys/times.h>
+#endif
 
 static void print_hex(const uint8_t *buf, size_t buflen, const char *sep)
 {

@@ -124,6 +124,22 @@ of output.
 We do most of our testing on Linux systems with gcc.  The supplied
 Makefile assumes that you use gcc.
 
+    On Windows.
+
+A PowerShell script, build.ps1, is provided to build yescrypt with the
+MSVC toolchain.  It requires Visual Studio Community 2026 with the
+"Desktop development with C++" workload installed (this also provides
+vswhere.exe, which the script uses to locate the compiler automatically).
+From a PowerShell prompt in this directory, run:
+
+    powershell -ExecutionPolicy Bypass -File .\build.ps1 -Target check
+
+This builds and runs tests.exe and phc-test.exe, printing "PASSED" and
+"PHC PASSED" on success.  Other targets mirror the Makefile: "all"
+(default), "tests", "phc-test", "ref", "check-ref", and "clean".  The
+"initrom" and "userom" programs are not built on Windows, as they rely on
+POSIX shared memory and mmap.
+
 
 	ROM in SysV shared memory demo and benchmark.
 

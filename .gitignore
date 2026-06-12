@@ -1,0 +1,16 @@
+# Build artifacts (Unix Makefile)
+*.o
+/tests
+/phc-test
+/initrom
+/userom
+
+# Build artifacts (MSVC / build.ps1)
+*.obj
+*.exe
+*.pdb
+*.ilk
+
+# Test output
+TESTS-OUT
+PHC-TEST-OUT
