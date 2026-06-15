@@ -124,7 +124,8 @@ of output.
 We do most of our testing on Linux systems with gcc.  The supplied
 Makefile assumes that you use gcc.
 
-    On Windows.
+
+	On Windows.
 
 A PowerShell script, build.ps1, is provided to build yescrypt with the
 MSVC toolchain.  It requires Visual Studio Community 2026 with the

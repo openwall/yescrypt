@@ -52,7 +52,10 @@ int PHS(void *out, size_t outlen, const void *in, size_t inlen,
 
 #ifdef TEST
 #include <stdio.h>
-#ifdef _MSC_VER
+#ifndef _MSC_VER
+#include <unistd.h> /* for sysconf() */
+#include <sys/times.h>
+#else
 /*
  * MSVC lacks the POSIX <unistd.h> and <sys/times.h> interfaces used for timing
  * below.  Provide a minimal Win32-based shim; the timing it produces is only
@@ -102,9 +105,6 @@ static clock_t times(struct tms *buf)
 	QueryPerformanceCounter(&now);
 	return (clock_t)(now.QuadPart * 1000 / freq.QuadPart);
 }
-#else
-#include <unistd.h> /* for sysconf() */
-#include <sys/times.h>
 #endif
 
 static void print_hex(const uint8_t *buf, size_t buflen, const char *sep)
