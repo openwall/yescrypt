@@ -42,7 +42,7 @@ all: $(PROJ)
 check: tests phc-test
 	@echo 'Running main tests'
 	@time ./tests | tee TESTS-OUT
-	@diff -U0 TESTS-OK TESTS-OUT && echo PASSED || echo FAILED
+	@diff -U0 TESTS-OK TESTS-OUT && echo PASSED || { echo FAILED; exit 1; }
 	@if [ -f PHC-TEST-OK-SHA256 ]; then \
 		echo 'Running PHC tests'; \
 		time ./phc-test > PHC-TEST-OUT; \

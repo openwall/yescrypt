@@ -18,39 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # Linux: the supplied Makefile works as-is (gcc, -lrt, OpenMP).
       - name: Build and test (Linux)
         if: runner.os == 'Linux'
         run: |
-          make tests phc-test
-          ./tests > TESTS-OUT
-          diff -u TESTS-OK TESTS-OUT
-          echo PASSED
-          ./phc-test > PHC-TEST-OUT
-          sha256sum -c PHC-TEST-OK-SHA256
-          echo "PHC PASSED"
+          make check
+          make initrom userom
 
-      # macOS: Apple's linker has no -lrt and rejects the Makefile's -s flag,
-      # so build with overridden flags.  initrom/userom are skipped (they need
-      # SysV shared memory).
+      # macOS: Apple's linker has no -lrt and rejects the Makefile's -s flag, so
+      # override CFLAGS/LDFLAGS.  initrom/userom are skipped: they need SysV
+      # shared memory, and OpenMP isn't bundled with Apple's clang.
       - name: Build and test (macOS)
         if: runner.os == 'macOS'
         run: |
-          make tests phc-test \
+          make check \
             CFLAGS="-Wall -O2 -fomit-frame-pointer -DSKIP_MEMZERO" \
             OMPFLAGS_MAYBE="" LDFLAGS=""
-          ./tests > TESTS-OUT
-          diff -u TESTS-OK TESTS-OUT
-          echo PASSED
-          ./phc-test > PHC-TEST-OUT
-          shasum -a 256 -c PHC-TEST-OK-SHA256
-          echo "PHC PASSED"
 
-      # Windows: build and test with the MSVC toolchain via build.ps1, which
-      # builds tests.exe and phc-test.exe, runs them, and verifies output
-      # against TESTS-OK / PHC-TEST-OK-SHA256, exiting non-zero on mismatch.
-      # shell: powershell uses Windows PowerShell 5.1 (shipped with Windows)
-      # rather than PowerShell 7, verifying 5.1 compatibility.
+      # Windows: build and test with the MSVC toolchain via build.ps1.  The
+      # "check" target builds tests.exe and phc-test.exe, runs them, and
+      # verifies their output against TESTS-OK / PHC-TEST-OK-SHA256
       - name: Build and test (Windows)
         if: runner.os == 'Windows'
         shell: powershell
