@@ -7,8 +7,8 @@ classic scrypt.
 
 As of this writing, yescrypt is the default password hashing scheme on
 recent ALT Linux, Arch Linux, Debian 11+, Fedora 35+, Kali Linux 2021.1+,
-and Ubuntu 22.04+.  It is also supported in Fedora 29+, RHEL 9+, and
-Ubuntu 20.04+, and is recommended for new passwords in Fedora CoreOS.
+RHEL 10, and Ubuntu 22.04+.  It is also supported in Fedora 29+, RHEL 9,
+and Ubuntu 20.04+, and is recommended for new passwords in Fedora CoreOS.
 
 
 	Why yescrypt?
