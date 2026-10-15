@@ -297,6 +297,7 @@ int main(int argc, const char * const *argv)
 
 		unsigned long long count1 = count, count_restart = 0;
 
+#ifndef __APPLE__
 		if (!geteuid()) {
 			puts("Running as root, so trying to set SCHED_RR");
 #pragma omp parallel
@@ -306,6 +307,7 @@ int main(int argc, const char * const *argv)
 					perror("sched_setscheduler");
 			}
 		}
+#endif
 
 		start = times(&start_tms);
 
